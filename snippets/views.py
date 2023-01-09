@@ -5,20 +5,58 @@ from rest_framework.parsers import JSONParser
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from django.http import Http404
+from rest_framework import mixins
+from rest_framework import generics
 # Create your views here.
+from snippets.models import Snippet
+from snippets.serializers import SnippetSerializer
+from rest_framework import mixins
+from rest_framework import generics
+
+class SnippetList(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+class SnippetDetail(mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
-@api_view(['GET', 'POST'])
-def snippet_list(request):
-    """
-    List all code snippets, or create a new snippet.
-    """
+
+
+
+""" @api_view(['GET', 'POST'])
+def snippet_list(request,format=None):
+    
     if request.method == 'GET':
         snippets = Snippet.objects.all()
         serializer = SnippetSerializer(snippets, many=True)
         return Response(serializer.data)
+
 
     elif request.method == 'POST':
         serializer = SnippetSerializer(data=request.data)
@@ -28,7 +66,7 @@ def snippet_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def snippet_detail(request, pk):
+def snippet_detail(request, pk,format=None):
     
     try:
         snippet = Snippet.objects.get(pk=pk)
@@ -48,9 +86,9 @@ def snippet_detail(request, pk):
 
     elif request.method == 'DELETE':
         snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT) 
 
-
+  """
 
 """ @csrf_exempt
 def snippet_list(request):
